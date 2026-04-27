@@ -3,298 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>iPad Survival Roulette - Fixed Alignment</title>
+    <title>Versus Mode - Survival Roulette</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
-            background-color: #0a0a0a;
+            background-color: #000;
             color: white;
+            height: 100vh;
+            width: 100vw;
             overflow: hidden;
             touch-action: manipulation;
         }
 
         #overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 100;
+            background: rgba(0,0,0,0.95); z-index: 1000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
         }
 
-        .main-game-area {
+        .team-side {
+            flex: 1;
             display: flex;
-            gap: 40px;
-            background: #151515;
-            padding: 40px;
-            border-radius: 30px;
-            border: 3px solid #222;
-            box-shadow: 0 0 60px rgba(0,0,0,1);
-            align-items: center;
-            transform: scale(0.95);
-        }
-
-        /* Voltage Meter */
-        .voltage-section { text-align: center; }
-        #voltage-num { font-size: 40px; font-weight: bold; color: #00ff00; margin-bottom: 10px; font-family: monospace; }
-        #meter-bar {
-            width: 60px; height: 240px;
-            background: #000; border: 4px solid #333;
-            position: relative; margin: 0 auto; border-radius: 5px;
-        }
-        #fill {
-            position: absolute; bottom: 0; width: 100%; height: 0%;
-            background: linear-gradient(to top, #00ff00, #ffff00, #ff0000);
-            transition: height 0.3s ease-out;
-        }
-
-        /* Fixed Revolver Cylinder */
-        .revolver-visual { 
-            position: relative; 
-            width: 220px; 
-            height: 220px;
-            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-        }
-        
-        #cylinder {
-            width: 210px; 
-            height: 210px;
-            background-color: #2a2a2a;
-            border-radius: 50%;
-            border: 8px solid #444;
             position: relative;
-            transition: transform 0.6s cubic-bezier(0.45, 0.05, 0.55, 0.95);
-            box-shadow: inset 0 0 40px #000;
-            -webkit-backface-visibility: hidden; /* Fix for iPad Safari jitter */
+            height: 100%;
+            transition: background 0.4s;
         }
 
-        .chamber-hole {
-            position: absolute;
-            width: 45px; 
-            height: 45px;
-            background: #111;
-            border-radius: 50%;
-            border: 2px solid #333;
-            /* Center calculation: (CylinderWidth/2) - (HoleWidth/2) */
-            left: calc(50% - 22.5px);
-            top: calc(50% - 22.5px);
+        #side-boys { background: linear-gradient(to bottom, #000, #001133); border-right: 2px solid #0044ff; }
+        #side-girls { background: linear-gradient(to bottom, #000, #330011); border-left: 2px solid #ff0066; }
+
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            transform: scale(0.9);
         }
 
-        .hammer-marker {
-            position: absolute; top: -25px; left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 15px solid transparent; border-right: 15px solid transparent;
-            border-top: 25px solid #ff4444; z-index: 10;
+        .label { font-size: 35px; font-weight: 900; margin-bottom: 5px; }
+        .boys-text { color: #4488ff; text-shadow: 0 0 15px #0044ff; }
+        .girls-text { color: #ff66aa; text-shadow: 0 0 15px #ff0066; }
+
+        .voltage-display {
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff00;
         }
 
-        .roulette-section { text-align: center; width: 180px; }
-        .danger-box {
-            background: #300; padding: 20px;
-            border-radius: 15px; margin: 15px 0;
-            border: 2px solid #ff4444;
+        .meter-bar {
+            width: 60px; height: 140px;
+            background: #000; border: 3px solid #444;
+            position: relative; border-radius: 8px; overflow: hidden;
         }
-        #chance-text { font-size: 38px; font-weight: bold; font-family: monospace; color: #ff4444; }
-        
-        .controls { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; width: 90%; max-width: 480px; }
+        .fill {
+            position: absolute; bottom: 0; width: 100%; height: 0%;
+            background: linear-gradient(to top, #00ff00, #ffff00, #ff0000);
+            transition: height 0.3s ease;
+        }
+
+        .revolver-box { position: relative; width: 170px; height: 170px; margin: 10px 0; }
+        .cylinder {
+            width: 100%; height: 100%;
+            background: #222; border-radius: 50%;
+            border: 6px solid #555; position: relative;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hole {
+            position: absolute; width: 32px; height: 32px;
+            background: #111; border-radius: 50%; border: 2px solid #333;
+            left: calc(50% - 16px); top: calc(50% - 16px);
+        }
+        .hammer {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 12px solid transparent;
+            border-right: 12px solid transparent; border-top: 20px solid #ff4444; z-index: 10;
+        }
+
+        .chance-meter {
+            font-family: monospace;
+            font-size: 18px;
+            color: #ff4444;
+            font-weight: bold;
+            height: 25px;
+        }
+
+        .btn-group { display: flex; flex-direction: column; gap: 8px; width: 260px; }
         button {
-            padding: 20px; font-size: 22px; font-weight: bold;
-            cursor: pointer; border: none; border-radius: 15px;
-            text-transform: uppercase; -webkit-tap-highlight-color: transparent;
+            padding: 15px; font-size: 18px; font-weight: bold;
+            cursor: pointer; border: none; border-radius: 12px;
+            text-transform: uppercase; color: white; -webkit-tap-highlight-color: transparent;
         }
-        .btn-wrong { background: #b71c1c; color: white; }
-        .btn-correct { background: #1b5e20; color: white; }
-        .btn-trigger { 
-            background: #fff; color: #000; font-size: 26px; 
-            display: none; width: 100%; animation: pulse 0.6s infinite;
-        }
+        .btn-wrong { background: #800; }
+        .btn-correct { background: #1b5e20; }
+        .btn-penalty { background: #e65100; font-size: 14px; }
+        .btn-reload { background: #333; font-size: 12px; color: #888; margin-top: 5px; }
+        .btn-trigger { background: #fff; color: #000; animation: pulse 0.7s infinite; display: none; }
 
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        .used { background: #000 !important; }
+        .used::after { content: '✕'; color: #ff4444; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; }
 
-        .used-chamber { background: #000 !important; border-color: #222 !important; }
-        .used-chamber::after { 
-            content: '✕'; color: #ff4444; position: absolute;
-            top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold;
-        }
-
-        #log { font-size: 18px; margin-top: 20px; color: #666; font-weight: bold; }
-        .shake { animation: screenShake 0.1s infinite; }
-        @keyframes screenShake { 0% { transform: translate(4px,4px); } 50% { transform: translate(-4px,-4px); } 100% { transform: translate(4px,-4px); } }
+        .shake { animation: shakeAnim 0.1s infinite; }
+        @keyframes shakeAnim { 0% { transform: translate(4px,4px); } 50% { transform: translate(-4px,-4px); } 100% { transform: translate(4px,-4px); } }
     </style>
 </head>
 <body>
 
     <div id="overlay">
-        <h1>SURVIVAL ROULETTE</h1>
-        <button onclick="unlockAudio()" style="background: #00ff00; color: black; padding: 20px 40px; border-radius: 50px;">INITIALIZE SYSTEM</button>
-        <p style="margin-top: 20px; color: #666;">Optimized for Tablet Touch</p>
+        <h1 style="font-size: 45px; margin-bottom: 5px;">VS MODE</h1>
+        <p style="color: #888; margin-bottom: 30px;">BOYS VS GIRLS</p>
+        <button onclick="init()" style="background: #00ff00; color: #000; padding: 25px 60px; border-radius: 50px; font-size: 24px; box-shadow: 0 0 30px rgba(0,255,0,0.4);">START COMPETITION</button>
     </div>
 
-    <div class="main-game-area" id="board">
-        <div class="voltage-section">
-            <div id="voltage-num">0 / 10</div>
-            <div id="meter-bar"><div id="fill"></div></div>
-        </div>
-
-        <div class="revolver-visual">
-            <div class="hammer-marker"></div>
-            <div id="cylinder"></div>
-        </div>
-
-        <div class="roulette-section">
-            <div class="danger-box">
-                <span id="chance-text">16%</span>
+    <div id="side-boys" class="team-side">
+        <div class="game-area">
+            <div class="label boys-text">BOYS</div>
+            <div id="num-boys" class="voltage-display">0 / 10</div>
+            <div class="meter-bar"><div id="fill-boys" class="fill"></div></div>
+            <div class="revolver-box">
+                <div class="hammer"></div>
+                <div id="cyl-boys" class="cylinder"></div>
             </div>
-            <button id="trigger-btn" class="btn-trigger" onclick="pullTrigger()">PULL TRIGGER</button>
+            <div class="btn-group">
+                <div id="chance-boys" class="chance-meter"></div>
+                <button id="trig-boys" class="btn-trigger" onclick="fire('boys')">PULL TRIGGER</button>
+                <div id="ctrl-boys" style="display: flex; gap: 10px;">
+                    <button class="btn-wrong" style="flex: 1.5;" onclick="handle('boys', 'w')">WRONG</button>
+                    <button class="btn-correct" style="flex: 1;" onclick="handle('boys', 'c')">CORRECT</button>
+                </div>
+                <button class="btn-penalty" id="pen-boys" onclick="handle('boys', 'p')">⚡ PENALTY</button>
+                <button class="btn-reload" onclick="reset('boys')">RESET CHAMBER</button>
+            </div>
         </div>
     </div>
 
-    <div id="log">READY</div>
-
-    <div class="controls">
-        <div id="action-btns" style="display: flex; gap: 12px;">
-            <button class="btn-wrong" style="flex: 1.5;" onclick="wrongAns()">WRONG</button>
-            <button class="btn-correct" style="flex: 1;" onclick="correctAns()">CORRECT</button>
+    <div id="side-girls" class="team-side">
+        <div class="game-area">
+            <div class="label girls-text">GIRLS</div>
+            <div id="num-girls" class="voltage-display">0 / 10</div>
+            <div class="meter-bar"><div id="fill-girls" class="fill"></div></div>
+            <div class="revolver-box">
+                <div class="hammer"></div>
+                <div id="cyl-girls" class="cylinder"></div>
+            </div>
+            <div class="btn-group">
+                <div id="chance-girls" class="chance-meter"></div>
+                <button id="trig-girls" class="btn-trigger" onclick="fire('girls')">PULL TRIGGER</button>
+                <div id="ctrl-girls" style="display: flex; gap: 10px;">
+                    <button class="btn-wrong" style="flex: 1.5;" onclick="handle('girls', 'w')">WRONG</button>
+                    <button class="btn-correct" style="flex: 1;" onclick="handle('girls', 'c')">CORRECT</button>
+                </div>
+                <button class="btn-penalty" id="pen-girls" onclick="handle('girls', 'p')">⚡ PENALTY</button>
+                <button class="btn-reload" onclick="reset('girls')">RESET CHAMBER</button>
+            </div>
         </div>
-        <button onclick="resetGame()" style="background: #222; color: #444; font-size: 14px;">RELOAD SYSTEM</button>
     </div>
 
     <script>
-        let voltage = 0;
-        let bulletPos = Math.floor(Math.random() * 6);
-        let currentShotIdx = 0;
-        let rotation = 0;
-        let audioCtx;
+        const game = {
+            boys: { volt: 0, bullet: 0, count: 0, rot: 0 },
+            girls: { volt: 0, bullet: 0, count: 0, rot: 0 }
+        };
 
-        function unlockAudio() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let ctx;
+
+        function init() {
+            ctx = new (window.AudioContext || window.webkitAudioContext)();
             document.getElementById('overlay').style.display = 'none';
+            reset('boys');
+            reset('girls');
         }
 
-        function playSound(type) {
-            if (!audioCtx) return;
-            const now = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-
-            if (type === 'voltage') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(900, now);
-                gain.gain.setValueAtTime(0.08, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-                osc.start(); osc.stop(now + 0.04);
-            } else if (type === 'click_mechanical') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(120, now);
-                gain.gain.setValueAtTime(0.04, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.008);
-                osc.start(); osc.stop(now + 0.01);
-            } else if (type === 'empty') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(400, now);
-                gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-                osc.start(); osc.stop(now + 0.1);
-            } else if (type === 'boom') {
-                const noise = audioCtx.createBufferSource();
-                const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.5, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < buffer.length; i++) data[i] = Math.random() * 2 - 1;
-                noise.buffer = buffer;
-                const noiseGain = audioCtx.createGain();
-                noise.connect(noiseGain); noiseGain.connect(audioCtx.destination);
-                noiseGain.gain.setValueAtTime(0.4, now); noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-                noise.start();
+        function sfx(type) {
+            if (!ctx) return;
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            const now = ctx.currentTime;
+            
+            if (type === 'tick') { o.type = 'square'; o.frequency.setValueAtTime(150, now); g.gain.setValueAtTime(0.02, now); o.start(); o.stop(now + 0.01); }
+            if (type === 'surge') { o.type = 'sine'; o.frequency.setValueAtTime(800, now); g.gain.setValueAtTime(0.05, now); o.start(); o.stop(now + 0.05); }
+            if (type === 'click') { o.type = 'triangle'; o.frequency.setValueAtTime(400, now); g.gain.setValueAtTime(0.1, now); o.start(); o.stop(now + 0.1); }
+            if (type === 'boom') {
+                const b = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
+                const d = b.getChannelData(0);
+                for (let i = 0; i < b.length; i++) d[i] = Math.random() * 2 - 1;
+                const src = ctx.createBufferSource(); src.buffer = b;
+                const bg = ctx.createGain(); bg.gain.setValueAtTime(0.4, now);
+                src.connect(bg); bg.connect(ctx.destination); src.start();
             }
         }
 
-        function createChambers() {
-            const cyl = document.getElementById('cylinder');
+        function build(team) {
+            const cyl = document.getElementById(`cyl-${team}`);
             cyl.innerHTML = '';
-            const radius = 72; // Distance from center
             for (let i = 0; i < 6; i++) {
-                const hole = document.createElement('div');
-                hole.className = 'chamber-hole';
-                hole.id = `hole-${i}`;
-                const angle = (i * 60 - 90) * (Math.PI / 180);
-                const x = radius * Math.cos(angle);
-                const y = radius * Math.sin(angle);
-                // Use translate to place them relative to the center of the cylinder
-                hole.style.transform = `translate(${x}px, ${y}px)`;
-                cyl.appendChild(hole);
+                const h = document.createElement('div');
+                h.className = 'hole'; h.id = `h-${team}-${i}`;
+                const a = (i * 60 - 90) * (Math.PI / 180);
+                h.style.transform = `translate(${55 * Math.cos(a)}px, ${55 * Math.sin(a)}px)`;
+                cyl.appendChild(h);
             }
         }
 
-        function updateUI() {
-            document.getElementById('voltage-num').innerText = `${voltage} / 10`;
-            document.getElementById('fill').style.height = (voltage * 10) + "%";
-            document.getElementById('chance-text').innerText = Math.round((1 / (6 - currentShotIdx)) * 100) + "%";
-            if (voltage >= 10) {
-                document.getElementById('trigger-btn').style.display = "block";
-                document.getElementById('action-btns').style.display = "none";
-                document.getElementById('board').style.borderColor = "red";
-            } else {
-                document.getElementById('trigger-btn').style.display = "none";
-                document.getElementById('action-btns').style.display = "flex";
-                document.getElementById('board').style.borderColor = "#222";
+        function sync(team) {
+            const t = game[team];
+            document.getElementById(`num-${team}`).innerText = t.volt + " / 10";
+            document.getElementById(`fill-${team}`).style.height = (t.volt * 10) + "%";
+            
+            const prob = Math.round((1 / (6 - t.count)) * 100);
+            const full = t.volt >= 10;
+            
+            document.getElementById(`chance-${team}`).innerText = full ? "DANGER: " + prob + "%" : "";
+            document.getElementById(`trig-${team}`).style.display = full ? "block" : "none";
+            document.getElementById(`ctrl-${team}`).style.display = full ? "none" : "flex";
+            document.getElementById(`pen-${team}`).style.display = full ? "none" : "block";
+        }
+
+        function handle(team, type) {
+            const t = game[team];
+            sfx('surge');
+            if (type === 'w') {
+                t.volt = Math.min(10, t.volt + Math.floor(Math.random() * 3) + 2);
+                t.rot += (360 + Math.floor(Math.random() * 180));
+                let c = 0; let i = setInterval(() => { sfx('tick'); c++; if(c>4) clearInterval(i); }, 50);
+            } else if (type === 'c') {
+                t.volt = Math.max(0, t.volt - 2);
+            } else if (type === 'p') {
+                t.volt = Math.min(10, t.volt + 5);
+                t.rot += 720;
             }
+            document.getElementById(`cyl-${team}`).style.transform = `rotate(${t.rot}deg)`;
+            sync(team);
         }
 
-        function wrongAns() {
-            playSound('voltage');
-            let spinCount = 0;
-            let spinInterval = setInterval(() => {
-                playSound('click_mechanical');
-                spinCount++;
-                if (spinCount > 6) clearInterval(spinInterval);
-            }, 50);
-            voltage = Math.min(10, voltage + Math.floor(Math.random() * 4) + 1);
-            rotation += (360 + Math.floor(Math.random() * 360));
-            document.getElementById('cylinder').style.transform = `rotate(${rotation}deg)`;
-            updateUI();
-        }
-
-        function correctAns() { voltage = Math.max(0, voltage - 2); updateUI(); }
-
-        function pullTrigger() {
-            document.getElementById('trigger-btn').disabled = true;
-            let targetRotation = currentShotIdx * -60;
-            let baseRotation = Math.floor(rotation / 360) * 360;
-            rotation = baseRotation + targetRotation;
-            document.getElementById('cylinder').style.transform = `rotate(${rotation}deg)`;
+        function fire(team) {
+            const t = game[team];
+            document.getElementById(`trig-${team}`).disabled = true;
+            t.rot = (Math.floor(t.rot / 360) * 360) + (t.count * -60);
+            document.getElementById(`cyl-${team}`).style.transform = `rotate(${t.rot}deg)`;
 
             setTimeout(() => {
-                if (currentShotIdx === bulletPos) {
-                    playSound('boom');
-                    document.body.classList.add('shake');
-                    document.body.style.background = "#600";
-                    setTimeout(resetGame, 4000);
+                if (t.count === t.bullet) {
+                    sfx('boom');
+                    document.getElementById(`side-${team}`).classList.add('shake');
+                    setTimeout(() => reset(team), 3500);
                 } else {
-                    playSound('empty');
-                    document.getElementById(`hole-${currentShotIdx}`).classList.add('used-chamber');
-                    currentShotIdx++;
-                    setTimeout(() => {
-                        voltage = 0;
-                        updateUI();
-                        document.getElementById('trigger-btn').disabled = false;
-                    }, 800);
+                    sfx('click');
+                    document.getElementById(`h-${team}-${t.count}`).classList.add('used');
+                    t.count++; t.volt = 0;
+                    setTimeout(() => { sync(team); document.getElementById(`trig-${team}`).disabled = false; }, 600);
                 }
             }, 600);
         }
 
-        function resetGame() {
-            voltage = 0; currentShotIdx = 0; rotation = 0;
-            bulletPos = Math.floor(Math.random() * 6);
-            document.getElementById('cylinder').style.transform = `rotate(0deg)`;
-            document.body.classList.remove('shake');
-            document.body.style.background = "#0a0a0a";
-            document.getElementById('trigger-btn').disabled = false;
-            createChambers();
-            updateUI();
+        function reset(team) {
+            game[team] = { volt: 0, bullet: Math.floor(Math.random() * 6), count: 0, rot: 0 };
+            const s = document.getElementById(`side-${team}`);
+            s.classList.remove('shake');
+            document.getElementById(`cyl-${team}`).style.transform = `rotate(0deg)`;
+            document.getElementById(`trig-${team}`).disabled = false;
+            build(team);
+            sync(team);
         }
-
-        createChambers();
-        updateUI();
     </script>
 </body>
 </html>
